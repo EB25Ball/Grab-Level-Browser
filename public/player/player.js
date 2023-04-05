@@ -1,12 +1,6 @@
 import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 
-/*colors.forEach((color) => {
-    var picker = document.getElementById('color-picker');
-    var colorElement = document.createElement('div');
-    colorElement.style.backgroundColor = `rgb(${(color.r ? color.r : 0) * 255}, ${(color.g ? color.g : 0) * 255}, ${(color.b ? color.b : 0) * 255})`;
-    picker.appendChild(colorElement);
-});*/
 const picker = document.getElementById('color-picker');
 function ConvertHSVToRGB(h, s, v, alpha) {
     let hi = h * 3.0 / Math.PI
@@ -73,34 +67,7 @@ function LinearToGamma(color) {
 function GetColor(row, column) {
     let color
     if (row === 0) {
-        if (column == 0) {
-            return color = { r: 1, g: 1, b: 1 }
-        }
-        if (column == 1) {
-            return color = { r: 0.8999999761581421, g: 0.8999999761581421, b: 0.8999999761581421 }
-        }
-        if (column == 2) {
-            return color = { r: 0.800000011920929, g: 0.800000011920929, b: 0.800000011920929 }
-        }
-        if (column == 3) {
-            return color = { r: 0.699999988079071, g: 0.699999988079071, b: 0.699999988079071 }
-        }
-        if (column == 4) {
-            return color = { r: 0.6000000238418579, g: 0.6000000238418579, b: 0.6000000238418579 }
-        }
-        if (column == 5) {
-            return color = { r: 0.5, g: 0.5, b: 0.5 }
-        } if (column == 6) {
-            return color = { r: 0.3999999761581421, g: 0.3999999761581421, b: 0.3999999761581421 }
-        } if (column == 7) {
-            return color = { r: 0.30000001192092896, g: 0.30000001192092896, b: 0.30000001192092896 }
-        } if (column == 8) {
-            return color = { r: 0.19999998807907104, g: 0.19999998807907104, b: 0.19999998807907104 }
-        }
-        if (column == 9) {
-            return color = { r: 0.10000002384185791, g: 0.10000002384185791, b: 0.10000002384185791 }
-        }
-
+            return color = ConvertHSVToRGB(0.0, 0.0, 1.0 - column / 10.0);
     }
     if (row <= 5 && row != 0) {
         return color = ConvertHSVToRGB(2.0 * Math.PI * column / 10.0, 1.0, row / (10.0 - 4.0));
@@ -206,7 +173,7 @@ const camera = new THREE.PerspectiveCamera(55, 300 / 300, 0.1, 1000);
 camera.position.z = 1.6;
 camera.rotation.x = -0.1;
 
-const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('.player-model'), alpha: true, transparent: true });
+const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('.player-model'), alpha: true, transparent: true, antialias: true  });
 renderer.setSize(300, 300);
 
 scene.background = null;
