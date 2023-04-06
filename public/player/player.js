@@ -1,6 +1,35 @@
 import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 
+let player_model;
+let activePrim_Div;
+let activeSec_Div;
+let primaryOpened = false;//god tier naming, but this check if the primary/secondary color menu was opened
+let secondaryOpened = false;
+
+function getCookie(cname)
+{
+	let name = cname + "=";
+	let decodedCookie = decodeURIComponent(document.cookie);
+	let ca = decodedCookie.split(';');
+	for(let i = 0; i <ca.length; i++)
+	{
+		let c = ca[i];
+		while(c.charAt(0) == ' ')
+		{
+			c = c.substring(1);
+		}
+		if(c.indexOf(name) == 0)
+		{
+			return c.substring(name.length, c.length);
+		}
+	}
+	return "";
+}
+let accessToken = getCookie("access_token");
+let userInfoString = getCookie("user_info");//nothing yet but steal their user_info :evil_blob-cat:
+console.log(accessToken);
+
 const picker = document.getElementById('color-picker');
 function ConvertHSVToRGB(h, s, v, alpha) {
     let hi = h * 3.0 / Math.PI
@@ -35,6 +64,7 @@ function ConvertHSVToRGB(h, s, v, alpha) {
         return { r: r, g: g, b: b, a: alpha }
     }
 }
+
 function LinearToGamma(color) {
     let r = color.r
     let g = color.g
@@ -77,19 +107,35 @@ function GetColor(row, column) {
         return color = ConvertHSVToRGB(2.0 * Math.PI * column / 10.0, 1.0 - (row - 5.0) / (10.0 - 5.0), 1.0);
     }
 }
-// Create 100 divs
-for (let w = 0; w < 100; w++) {
 
-    // Create a container element for the 10 divs
+for (let w = 0; w < 100; w++) {
     const container = document.createElement('div');
     const lastWholeDigitNum = w % 10;
     const firstWholeDigitNum = Math.floor(w / 10);
     container.classList.add(`column${lastWholeDigitNum}`);
     container.classList.add(`row${firstWholeDigitNum}`);
+    container.onclick = function(){
+        if(primaryOpened == true){
+        activePrim_Div =  document.getElementsByClassName(container.className);
+        }
+        if(secondaryOpened ==true){
+        activeSec_Div = document.getElementsByClassName(container.className);
+        }
+    }
+    container.onmouseover = function(){
+        container.style.border ='3px solid #333';
+        container.style.cursor = 'pointer';
+    };
+    container.onmouseout = function(){
+        container.style.border ='none';
+        container.style.cursor = 'pointer';
+        if (activePrim_Div && primaryOpened ==true){activePrim_Div[0].style.border = '3px solid #333';}
+        if (activeSec_Div && secondaryOpened ==true){activeSec_Div[0].style.border = '3px solid #333';}
+        
+    };
     container.setAttribute("hsvValue", `rgb(${GetColor(firstWholeDigitNum, lastWholeDigitNum).r},${GetColor(firstWholeDigitNum, lastWholeDigitNum).g},${GetColor(firstWholeDigitNum, lastWholeDigitNum).b})`)
     container.style.backgroundColor = `rgb(${Math.floor(LinearToGamma(GetColor(firstWholeDigitNum, lastWholeDigitNum)).r * 255)}, ${Math.floor(LinearToGamma(GetColor(firstWholeDigitNum, lastWholeDigitNum)).g * 255)}, ${Math.floor(LinearToGamma(GetColor(firstWholeDigitNum, lastWholeDigitNum)).b * 255)})`;
     picker.appendChild(container);
-    // If 10 containers have been created, move to the next row and reset x coordinate
 }
 
 function setPrimaryColor(e) {
@@ -98,15 +144,12 @@ function setPrimaryColor(e) {
         "Mesh004"
     ];
     if (e.target.parentNode.id !== 'color-picker') return;
-    console.log(scene.children[1]);
     const color = e.target.style.backgroundColor;
     if (color) {
-        const hex = color.replace(/^#/, '0x');
-        const model = scene.children[1];
-        if (model) {
-            model.traverse(function (node) {
+        if (player_model) {//switch to playermodel since we had it defined in the loader
+            player_model.traverse(function (node) {
                 if (node.isMesh && modelNodes.includes(node.name)) {
-                    node.material = new THREE.MeshPhongMaterial({ color: hex });
+                    node.material.color.set(color);//color is rgb, there was no need for hex
                 }
             });
         }
@@ -114,35 +157,40 @@ function setPrimaryColor(e) {
     renderer.render(scene, camera);
     document.getElementById('primary').style.display = 'block';
     document.getElementById('secondary').style.display = 'block';
-    document.querySelectorAll('#color-picker div').forEach(e => e.style.display = 'none');
+    document.querySelectorAll('#color-picker div').forEach(e => {e.style.border = 'none'; e.style.display = 'none';});
+    primaryOpened = false;
 
     document.removeEventListener('click', setPrimaryColor);
 }
 
 function setSecondaryColor(e) {
     let modelNodes = [
-        "Cylinder005_1",
-        "Cylinder005_2",
-        "Mesh004_1"
+        "Cylinder005_1",//head lines
+        "Cylinder005_2",//visor
+        "Mesh004_1"//body outlines
     ];
     if (e.target.parentNode.id !== 'color-picker') return;
     console.log(scene.children[1]);
     const color = e.target.style.backgroundColor;
     if (color) {
-        const hex = color.replace(/^#/, '0x');
-        const model = scene.children[1];
-        if (model) {
-            model.traverse(function (node) {
+        const extractColor = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        const visorColor = `rgb(${Math.ceil(parseInt(extractColor[1], 10) / 2)},${Math.ceil(parseInt(extractColor[2], 10) / 2)},${Math.ceil(parseInt(extractColor[3], 10) / 2)})`;
+        if (player_model) {
+            player_model.traverse(function (node) {
                 if (node.isMesh && modelNodes.includes(node.name)) {
-                    node.material = new THREE.MeshPhongMaterial({ color: hex });
+                    node.material.color.set(color);
                 }
+                if (node.isMesh && node.name === "Cylinder005_2") {
+                    node.material.color.set(visorColor);//darkened visor color fyi, this is correct darkenment
+                  }
             });
         }
     }
     renderer.render(scene, camera);
     document.getElementById('primary').style.display = 'block';
     document.getElementById('secondary').style.display = 'block';
-    document.querySelectorAll('#color-picker div').forEach(e => e.style.display = 'none');
+    document.querySelectorAll('#color-picker div').forEach(e => {e.style.border = 'none'; e.style.display = 'none';});
+    secondaryOpened = false;
 
     document.removeEventListener('click', setSecondaryColor);
 }
@@ -151,17 +199,23 @@ function setSecondaryColor(e) {
 
 addEventListener('click', (e) => {
     if (e.target.id == 'primary') {
+        primaryOpened = true;
         e.target.style.display = 'none';
         document.getElementById('secondary').style.display = 'none';
         document.querySelectorAll('#color-picker div').forEach(e => e.style.display = 'block');
-        
+        if(activePrim_Div){
+            activePrim_Div[0].style.border = '3px solid #333';
+        }
         document.addEventListener('click', setPrimaryColor);
     
     } else if (e.target.id == 'secondary') {
+        secondaryOpened = true;
         e.target.style.display = 'none';
         document.getElementById('primary').style.display = 'none';
         document.querySelectorAll('#color-picker div').forEach(e => e.style.display = 'block');
-        
+        if(activeSec_Div){
+            activeSec_Div[0].style.border = '3px solid #333';
+        }
         document.addEventListener('click', setSecondaryColor);
     }
 });
@@ -180,7 +234,7 @@ scene.background = null;
 
 const loader = new GLTFLoader();
 loader.load('models/player.gltf', function (gltf) {
-const model = gltf.scene;
-scene.add(model);
+player_model = gltf.scene;
+scene.add(player_model);
 renderer.render(scene, camera);
 });
