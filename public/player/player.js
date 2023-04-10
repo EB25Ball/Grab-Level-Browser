@@ -1,34 +1,60 @@
 import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
+
+const urlParams = new URLSearchParams(window.location.search);
+const userId = urlParams.get('user_id');
+const playerInfo_Url = `https://api.slin.dev/grab/v1/get_user_info?user_id=${userId}`;//edit this later to use the config https://api.slin.dev/grab/v1/ and then just call it with fetch(configname_here + 'get_user_info?' + `user_id=${userId}`)
 
 let player_model;
 let activePrim_Div;
 let activeSec_Div;
+let playerPrim_Color;
+let playerSec_Color;
 let primaryOpened = false;//god tier naming, but this check if the primary/secondary color menu was opened
 let secondaryOpened = false;
 
-function getCookie(cname)
-{
-	let name = cname + "=";
-	let decodedCookie = decodeURIComponent(document.cookie);
-	let ca = decodedCookie.split(';');
-	for(let i = 0; i <ca.length; i++)
-	{
-		let c = ca[i];
-		while(c.charAt(0) == ' ')
-		{
-			c = c.substring(1);
-		}
-		if(c.indexOf(name) == 0)
-		{
-			return c.substring(name.length, c.length);
-		}
-	}
-	return "";
+async function SetColors(){
+    if (player_model) {
+    if(userId){
+    let response = await fetch(playerInfo_Url);
+    let responseBody = await response.json();
+    playerPrim_Color = responseBody.active_customizations.player_color_primary.color;
+    playerSec_Color = responseBody.active_customizations.player_color_secondary.color;
+    let primaryNodes = [
+    "Cylinder005",
+    "Mesh004"
+    ];
+    let secondaryNodes = [
+    "Cylinder005_1",//head lines
+    "Cylinder005_2",//visor
+    "Mesh004_1"//body outlines
+];
+     const Color_Buttons = document.querySelectorAll('.ColorButtons');
+     Color_Buttons.forEach(element => {
+     const backgroundColor = element.style.backgroundColor;
+     if (backgroundColor === `rgb(${Math.floor(LinearToGamma({r:playerPrim_Color[0], g:playerPrim_Color[1], b:playerPrim_Color[2],a:1}).r*255)}, ${Math.floor(LinearToGamma({r:playerPrim_Color[0], g:playerPrim_Color[1], b:playerPrim_Color[2],a:1}).g*255)}, ${Math.floor(LinearToGamma({r:playerPrim_Color[0], g:playerPrim_Color[1], b:playerPrim_Color[2],a:1}).b*255)})`) {
+       activePrim_Div = document.getElementsByClassName(element.className);
+     }
+    if (backgroundColor === `rgb(${Math.floor(LinearToGamma({r:playerSec_Color[0], g:playerSec_Color[1], b:playerSec_Color[2],a:1}).r*255)}, ${Math.floor(LinearToGamma({r:playerSec_Color[0], g:playerSec_Color[1], b:playerSec_Color[2],a:1}).g*255)}, ${Math.floor(LinearToGamma({r:playerSec_Color[0], g:playerSec_Color[1], b:playerSec_Color[2],a:1}).b*255)})`) {
+    activeSec_Div = document.getElementsByClassName(element.className);
+    }
+
+   });
+        player_model.traverse(function (node) {
+            if (node.isMesh && primaryNodes.includes(node.name)) {
+                node.material.color.set(`rgb(${Math.floor(LinearToGamma({r:playerPrim_Color[0], g:playerPrim_Color[1], b:playerPrim_Color[2],a:1}).r*255)},${Math.floor(LinearToGamma({r:playerPrim_Color[0], g:playerPrim_Color[1], b:playerPrim_Color[2],a:1}).g*255)},${Math.floor(LinearToGamma({r:playerPrim_Color[0], g:playerPrim_Color[1], b:playerPrim_Color[2],a:1}).b*255)})`);
+            }
+            if (node.isMesh && secondaryNodes.includes(node.name)) {
+                node.material.color.set(`rgb(${Math.floor(LinearToGamma({r:playerSec_Color[0], g:playerSec_Color[1], b:playerSec_Color[2],a:1}).r*255)},${Math.floor(LinearToGamma({r:playerSec_Color[0], g:playerSec_Color[1], b:playerSec_Color[2],a:1}).g*255)},${Math.floor(LinearToGamma({r:playerSec_Color[0], g:playerSec_Color[1], b:playerSec_Color[2],a:1}).b*255)})`);
+            }
+            if (node.isMesh && node.name === "Cylinder005_2") {
+                node.material.color.set(`rgb(${Math.floor(LinearToGamma({r:playerSec_Color[0], g:playerSec_Color[1], b:playerSec_Color[2],a:1}).r*255/2)},${Math.floor(LinearToGamma({r:playerSec_Color[0], g:playerSec_Color[1], b:playerSec_Color[2],a:1}).g*255/2)},${Math.floor(LinearToGamma({r:playerSec_Color[0], g:playerSec_Color[1], b:playerSec_Color[2],a:1}).b*255/2)})`);
+              }
+        });
+    }
 }
-let accessToken = getCookie("access_token");
-let userInfoString = getCookie("user_info");//nothing yet but steal their user_info :evil_blob-cat:
-console.log(accessToken);
+}
 
 const picker = document.getElementById('color-picker');
 function ConvertHSVToRGB(h, s, v, alpha) {
@@ -101,7 +127,6 @@ function GetColor(row, column) {
     }
     if (row <= 5 && row != 0) {
         return color = ConvertHSVToRGB(2.0 * Math.PI * column / 10.0, 1.0, row / (10.0 - 4.0));
-
     }
     else {
         return color = ConvertHSVToRGB(2.0 * Math.PI * column / 10.0, 1.0 - (row - 5.0) / (10.0 - 5.0), 1.0);
@@ -112,6 +137,7 @@ for (let w = 0; w < 100; w++) {
     const container = document.createElement('div');
     const lastWholeDigitNum = w % 10;
     const firstWholeDigitNum = Math.floor(w / 10);
+    container.classList.add(`ColorButtons`);
     container.classList.add(`column${lastWholeDigitNum}`);
     container.classList.add(`row${firstWholeDigitNum}`);
     container.onclick = function(){
@@ -123,14 +149,14 @@ for (let w = 0; w < 100; w++) {
         }
     }
     container.onmouseover = function(){
-        container.style.border ='3px solid #333';
+        container.style.outline ='3px solid #333';
         container.style.cursor = 'pointer';
     };
     container.onmouseout = function(){
-        container.style.border ='none';
+        container.style.outline ='none';
         container.style.cursor = 'pointer';
-        if (activePrim_Div && primaryOpened ==true){activePrim_Div[0].style.border = '3px solid #333';}
-        if (activeSec_Div && secondaryOpened ==true){activeSec_Div[0].style.border = '3px solid #333';}
+        if (activePrim_Div && primaryOpened ==true){activePrim_Div[0].style.outline = '3px solid #333';}
+        if (activeSec_Div && secondaryOpened ==true){activeSec_Div[0].style.outline = '3px solid #333';}
         
     };
     container.setAttribute("hsvValue", `rgb(${GetColor(firstWholeDigitNum, lastWholeDigitNum).r},${GetColor(firstWholeDigitNum, lastWholeDigitNum).g},${GetColor(firstWholeDigitNum, lastWholeDigitNum).b})`)
@@ -157,7 +183,7 @@ function setPrimaryColor(e) {
     renderer.render(scene, camera);
     document.getElementById('primary').style.display = 'block';
     document.getElementById('secondary').style.display = 'block';
-    document.querySelectorAll('#color-picker div').forEach(e => {e.style.border = 'none'; e.style.display = 'none';});
+    document.querySelectorAll('#color-picker div').forEach(e => {e.style.outline = 'none'; e.style.display = 'none';});
     primaryOpened = false;
 
     document.removeEventListener('click', setPrimaryColor);
@@ -189,7 +215,7 @@ function setSecondaryColor(e) {
     renderer.render(scene, camera);
     document.getElementById('primary').style.display = 'block';
     document.getElementById('secondary').style.display = 'block';
-    document.querySelectorAll('#color-picker div').forEach(e => {e.style.border = 'none'; e.style.display = 'none';});
+    document.querySelectorAll('#color-picker div').forEach(e => {e.style.outline = 'none'; e.style.display = 'none';});
     secondaryOpened = false;
 
     document.removeEventListener('click', setSecondaryColor);
@@ -204,7 +230,7 @@ addEventListener('click', (e) => {
         document.getElementById('secondary').style.display = 'none';
         document.querySelectorAll('#color-picker div').forEach(e => e.style.display = 'block');
         if(activePrim_Div){
-            activePrim_Div[0].style.border = '3px solid #333';
+            activePrim_Div[0].style.outline = '3px solid #333';
         }
         document.addEventListener('click', setPrimaryColor);
     
@@ -214,7 +240,7 @@ addEventListener('click', (e) => {
         document.getElementById('primary').style.display = 'none';
         document.querySelectorAll('#color-picker div').forEach(e => e.style.display = 'block');
         if(activeSec_Div){
-            activeSec_Div[0].style.border = '3px solid #333';
+            activeSec_Div[0].style.outline = '3px solid #333';
         }
         document.addEventListener('click', setSecondaryColor);
     }
@@ -226,15 +252,37 @@ scene.add(ambientLight);
 const camera = new THREE.PerspectiveCamera(55, 300 / 300, 0.1, 1000);
 camera.position.z = 1.6;
 camera.rotation.x = -0.1;
-
 const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('.player-model'), alpha: true, transparent: true, antialias: true  });
 renderer.setSize(300, 300);
 
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableZoom = false;
+controls.minPolarAngle = Math.PI/2;
+controls.maxPolarAngle = Math.PI/2;
+controls.addEventListener('start', () => {
+    document.body.style.cursor = 'none';
+  });
+  
+controls.addEventListener('end', () => {
+    document.body.style.cursor = 'auto';
+});
+
 scene.background = null;
+const player_group = new THREE.Group();
+scene.add(player_group);
 
 const loader = new GLTFLoader();
 loader.load('models/player.gltf', function (gltf) {
 player_model = gltf.scene;
-scene.add(player_model);
-renderer.render(scene, camera);
+SetColors();
+player_model.position.y = 0.2;
+player_group.add(player_model);
 });
+   
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    player_group.rotation.y = controls.target.x * Math.PI / 180;
+    renderer.render(scene, camera);
+}
+animate();
