@@ -156,6 +156,7 @@ async function loadMoreLevels()
 	{
 		//Reverse favorites list to show the newest addition at the top
 		responseBody.reverse()
+
 	}
 
 	let isAdmin = false
@@ -165,7 +166,7 @@ async function loadMoreLevels()
 	}
 
 	for(let listElement of responseBody)
-	{
+	{console.log(listElement.object_info);
 		let cell = document.createElement("div");
 		container.appendChild(cell);
 		if(userInfo && (("is_admin" in userInfo && userInfo.is_admin === true) || ("is_moderator" in userInfo && userInfo.is_moderator === true)))
@@ -183,7 +184,6 @@ async function loadMoreLevels()
 		{
 			cell.className = 'list-cell';
 		}
-
 		//This is a cell with user info! add user specific content and then skip everything after this if
 		if(currentTab === "report_users" || currentTab === "banned_users" || currentTab === "search_users")
 		{
@@ -582,11 +582,14 @@ async function loadMoreLevels()
 
 		if(accessToken && userInfo)
 		{
+			let cell_bar = document.createElement("div");
+				cell.appendChild(cell_bar);
+				cell_bar.className = "cell-bar";
 			if((currentTab !== "report_levels" || currentSearchTerm.length > 0) && currentTab !== "search_users")
-			{
+			{	
 				//Report button
 				let reportButton = document.createElement("button");
-				cell.appendChild(reportButton);
+				cell_bar.appendChild(reportButton);
 				reportButton.className = "cell-button-report";
 				reportButton.onclick = function () {
 					let reasonMapping = {
@@ -641,7 +644,7 @@ async function loadMoreLevels()
 			{
 				//Report user button on level cells
 				let reportButton = document.createElement("button");
-				cell.appendChild(reportButton);
+				cell_bar.appendChild(reportButton);
 				reportButton.className = "cell-button-report-user";
 				reportButton.onclick = function () {
 					let reasonMapping = {
@@ -674,18 +677,51 @@ async function loadMoreLevels()
 			cell.appendChild(linebreak);
 
 			//Setup a button favorite the level (or remove from favorites if on favorites page)
-			let favoriteButton = document.createElement("button");
-			cell.appendChild(favoriteButton);
-			if(currentTab !== "favorites") favoriteButton.innerHTML = "<b>ADD TO FAVORITES</b>";
-			else favoriteButton.innerHTML = "<b>REMOVE FROM FAVORITES</b>";
+
+
+
+			// create the star
+			const favoriteButton = document.createElement("span");
+			favoriteButton.setAttribute("class", "fa fa-star-o");
+				if (currentTab != "favorites"){
+				let favFetch = await fetch(SERVER_URL + 'get_favorite_levels?access_token=' + accessToken);
+				let favResponse = await favFetch.json();
+				for(let listFavorites of favResponse){
+					if ("identifier" in listFavorites){
+						if(listFavorites.identifier === listElement.identifier){
+							favoriteButton.classList.replace('fa-star-o', 'fa-star');
+							favoriteButton.classList.add('star_active')
+							
+						}
+					}
+				}
+			}else if(currentTab == "favorites"){
+				favoriteButton.style.color="orange";
+
+			}
+			if("is_admin" in userInfo && userInfo.is_admin === true)
+			{
+				cell.appendChild(favoriteButton);
+			}
+			else {
+			cell_bar.appendChild(favoriteButton);
+			}
+
+
 			favoriteButton.onclick = function () {
 			  	(async () => {
 			  		if(currentTab !== "favorites")
-			  		{
+			  		{	if (favoriteButton.classList.contains('fa-star-o')) {
+						favoriteButton.classList.replace('fa-star-o', 'fa-star');
+						favoriteButton.classList.toggle('star_active');
+					  } else if (favoriteButton.classList.contains('fa-star')){
+						favoriteButton.classList.replace('fa-star', 'fa-star-o');
+						favoriteButton.classList.toggle('star_active');
+					  }
 			  			let response = await fetch(SERVER_URL + 'add_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
 						let responseBody = await response.text();
 						console.log(responseBody);
-						confirm(response.status == 200? "Success" : "Error: Already removed? Need to login again?");
+					//confirm(response.status == 200? "Success" : "Error: Already removed? Need to login again?");
 						if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
 						{
 							logout();
@@ -1181,7 +1217,7 @@ function tabChanged(tab)
 		searchField.style.display = "block"
 	}
 	if(tab === "user")
-	{
+	 {
 		titleString = "User";
 
 		//Add rick astley picture as background if this is the profile of .index / NSKC7
