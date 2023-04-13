@@ -235,7 +235,8 @@ addEventListener('click', (e) => {
         document.addEventListener('click', setPrimaryColor);
     
     } else if (e.target.id == 'secondary') {
-        secondaryOpened = true;
+        console.log(document.getElementById('primary'));
+        secondaryOpned = true;
         e.target.style.display = 'none';
         document.getElementById('primary').style.display = 'none';
         document.querySelectorAll('#color-picker div').forEach(e => e.style.display = 'block');
