@@ -1,0 +1,23 @@
+#More Features, Simplified Code
+#
+# Conflicts:
+#	public/player/player.js
+#
+# It looks like you may be committing a cherry-pick.
+# If this is not correct, please run
+#	git update-ref -d CHERRY_PICK_HEAD
+# and try again.
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Wed Apr 5 20:26:54 2023 -0400
+#
+# On branch more-featuresv1
+# You are currently cherry-picking commit b101221.
+#
+# Changes to be committed:
+#	modified:   public/player/index.html
+#	modified:   public/player/player.js
+#
