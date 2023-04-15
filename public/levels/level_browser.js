@@ -693,8 +693,8 @@ async function loadMoreLevels()
 								if(listFavorites.identifier === listElement.identifier){
 									favoriteButton.classList.replace('fa-star-o', 'fa-star');
 									favoriteButton.classList.add('star_active');	
-							}
-							if("is_admin" in userInfo && userInfo.is_admin === true){
+								}
+						}if("is_admin" in userInfo && userInfo.is_admin === true){
 								favoriteButton.style.position = 'absolute';
 								favoriteButton.style.right = '-12.25rem';
 								cell_bar.appendChild(favoriteButton);
@@ -702,7 +702,6 @@ async function loadMoreLevels()
 							else {
 								cell_bar.appendChild(favoriteButton);
 							}
-						}
 				}
 			}
 		}
@@ -722,13 +721,12 @@ async function loadMoreLevels()
 			favoriteButton.onclick = function () {
 			  	(async () => {
 			  		if(currentTab !== "favorites")
-			  		{	if (favoriteButton.classList.contains('fa-star-o')) {
+			  		{if (favoriteButton.classList.contains('fa-star-o')) {
 						favoriteButton.classList.replace('fa-star-o', 'fa-star');
 						favoriteButton.classList.toggle('star_active');
 						let response = await fetch(SERVER_URL + 'add_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
 						let responseBody = await response.text();
 						console.log(responseBody);
-						confirm(response.status == 200? "Success" : "Error: Already removed? Need to login again?");
 						if (response.status == 200){
 							getFavoriteLevel();
 						}
@@ -737,7 +735,7 @@ async function loadMoreLevels()
 							confirm("Error: Already removed? Need to login again?");
 							logout();
 						}
-					  } else if (favoriteButton.classList.contains('fa-star')){//on click basically its going to check if it is a filled star and if it is then cahnge to a outlined one
+					} else if (favoriteButton.classList.contains('fa-star')){//on click basically its going to check if it is a filled star and if it is then cahnge to a outlined one
 						favoriteButton.classList.replace('fa-star', 'fa-star-o');
 						favoriteButton.classList.toggle('star_active');
 						let response = await fetch(SERVER_URL + 'remove_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
@@ -751,15 +749,32 @@ async function loadMoreLevels()
 					  }
 			  		}
 			  		else if(currentTab === "favorites")
-			  		{
+			  		{	if (favoriteButton.classList.contains('fa-star')){
+						favoriteButton.classList.replace('fa-star', 'fa-star-o');
+						favoriteButton.classList.toggle('star_active');
+						favoriteButton.style.color="black";
 			  			let response = await fetch(SERVER_URL + 'remove_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
 						let responseBody = await response.text();
 						console.log(responseBody);
-						confirm(response.status == 200? "Success" : "Error: Already removed? Need to login again?");
 						if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
 						{
+							confirm("Error: Already Added? Need to login again?");
 							logout();
 						}
+					}
+					if (favoriteButton.classList.contains('fa-star-o')){
+					  favoriteButton.classList.replace('fa-star-o', 'fa-star');
+					  favoriteButton.classList.toggle('star_active');
+					  favoriteButton.style.color="orange";
+					  let response = await fetch(SERVER_URL + 'remove_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
+					  let responseBody = await response.text();
+					  console.log(responseBody);
+					  if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
+					  {
+						  confirm("Error: Already Added? Need to login again?");
+						  logout();
+					  }
+				  }
 			  		}
 				})();
 			};
