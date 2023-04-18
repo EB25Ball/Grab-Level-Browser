@@ -5,12 +5,14 @@ import { useUserStore } from '@/stores/user'
 import ModerationTools from './ModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
 import HideLevelButton from './HideLevelButton.vue'
+import FavoriteLevelButton from './FavoriteLevelButton.vue'
 
 export default {
   components: {
     ModerationTools,
     VerifyLevelButton,
-    HideLevelButton
+    HideLevelButton,
+    FavoriteLevelButton
   },
 
   emit: ['more'],
@@ -86,7 +88,8 @@ export default {
     },
 
     ...mapState(useUserStore, ['isModerator']),
-    ...mapState(useUserStore, ['isAdmin'])
+    ...mapState(useUserStore, ['isAdmin']),
+    ...mapState(useUserStore, ['isLoggedIn'])
   },
 
   created() {
@@ -107,7 +110,7 @@ export default {
 
     showMoreLevels(userID) {
       this.$emit('more', this.item.identifier.split(':')[0])
-    }
+    },
   }
 }
 </script>
@@ -122,6 +125,7 @@ export default {
     <VerifyLevelButton v-if="isModerator" :level-info="item"/>
     <HideLevelButton v-if="isAdmin" :level_id="item.identifier" @handled="didHandleCell"/>
     <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
+    <FavoriteLevelButton v-if="isLoggedIn"  :level_id="item.identifier"/>
     <a target="_blank" :href="viewerURL" class="play-button">OPEN</a>
     <img v-if="hasOKStamp" alt="OK Stamp" class="stamp" src="./../assets/stamp_ok.png" width="453" height="180" />
   </div>
@@ -193,6 +197,7 @@ export default {
 }
 
 .more-button {
+  cursor:pointer;
   display: block;
   width: fit-content;
   padding-left: 10px;

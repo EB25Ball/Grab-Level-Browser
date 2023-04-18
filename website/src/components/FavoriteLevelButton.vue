@@ -1,0 +1,53 @@
+<script>
+import { mapState } from 'pinia'
+import { useUserStore } from '@/stores/user'
+import { setUserFavorites } from '../requests/SetUserFavoritesRequest.js'
+import { removeUserFavorites } from '../requests/RemoveUserFavoritesRequest.js'
+
+export default {
+
+    props: {
+        level_id: String
+    },
+
+    computed: {
+        ...mapState(useUserStore, ['accessToken']),
+        isFavorited() {
+            const userStore=useUserStore()
+            return userStore.isFavorited(this.level_id)
+        }
+    },
+
+    methods: {
+        async toggleFavoriteLevel(event) {
+            if (this.accessToken) {
+                const userStore = useUserStore()
+                userStore.addFavoriteLevel(this.level_id)
+                await setUserFavorites(this.$api_server_url,this.level_id, this.accessToken)
+            }
+        },
+        async toggleRemoveFavoriteLevel(event) {
+            if (this.accessToken) {
+                const userStore = useUserStore()
+                userStore.removeFavoriteLevel(this.level_id)
+                await removeUserFavorites(this.$api_server_url,this.level_id, this.accessToken) 
+            }
+        }
+    }
+}
+</script>
+
+<template>
+        <img v-if="isFavorited" class="favorite-button" @click="toggleRemoveFavoriteLevel" alt="favorited" src="./../assets/star_on.svg">
+        <img v-else class="favorite-button" alt="favorite" @click="toggleFavoriteLevel" src="./../assets/star_off.svg">
+</template>
+
+<style>
+.favorite-button {
+    max-width: 10%;
+    height: 30px;
+    cursor: pointer;
+    position:absolute;
+    bottom: 5%;
+}
+</style>
