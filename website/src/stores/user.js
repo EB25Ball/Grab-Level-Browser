@@ -56,7 +56,9 @@ export const useUserStore = defineStore('user', {
     async fetchUsersFavorites(serverURL, maxLevelFormatVersion) {
       if (this.accessToken) {
         const favoriteLevels = await listRequest(serverURL, this.accessToken, 'tab_favorite_levels', null, maxLevelFormatVersion, null, null)
-        this.favoriteLevels = favoriteLevels.map(level => level.identifier)
+        if (favoriteLevels !== false) {
+          this.favoriteLevels = favoriteLevels.map(level => level.identifier);
+        }
       }
     },
     isFavorited(level_id) {
@@ -69,7 +71,9 @@ export const useUserStore = defineStore('user', {
       }
     },
     addFavoriteLevel(level_id) {
-      this.favoriteLevels.push(level_id);
+      if (!this.favoriteLevels.includes(level_id)) {
+        this.favoriteLevels.push(level_id);
+      }
     }
   },
   persist: true,
