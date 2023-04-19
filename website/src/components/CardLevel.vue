@@ -110,7 +110,7 @@ export default {
 
     showMoreLevels(userID) {
       this.$emit('more', this.item.identifier.split(':')[0])
-    },
+    }
   }
 }
 </script>
@@ -197,7 +197,7 @@ export default {
 }
 
 .more-button {
-  cursor:pointer;
+  cursor: pointer;
   display: block;
   width: fit-content;
   padding-left: 10px;
@@ -209,7 +209,7 @@ export default {
   color: #FFFFFF;
   font-weight: bold;
   font-size: 13px;
-  text-align:center;
+  text-align: center;
   text-decoration: none;
 }
 

@@ -19,18 +19,18 @@ export default {
     },
 
     methods: {
-        async toggleFavoriteLevel(event) {
+        async FavoriteLevel() {
             if (this.accessToken) {
                 const userStore = useUserStore()
-                userStore.addFavoriteLevel(this.level_id)
                 await setUserFavorites(this.$api_server_url,this.level_id, this.accessToken)
+                userStore.addFavoriteLevel(this.level_id)
             }
         },
-        async toggleRemoveFavoriteLevel(event) {
+        async RemoveFavoriteLevel() {
             if (this.accessToken) {
                 const userStore = useUserStore()
-                userStore.removeFavoriteLevel(this.level_id)
                 await removeUserFavorites(this.$api_server_url,this.level_id, this.accessToken) 
+                userStore.removeFavoriteLevel(this.level_id)
             }
         }
     }
@@ -38,8 +38,8 @@ export default {
 </script>
 
 <template>
-        <img v-if="isFavorited" class="favorite-button" @click="toggleRemoveFavoriteLevel" alt="favorited" src="./../assets/star_on.svg">
-        <img v-else class="favorite-button" alt="favorite" @click="toggleFavoriteLevel" src="./../assets/star_off.svg">
+        <img v-if="isFavorited" class="favorite-button" @click="RemoveFavoriteLevel" alt="favorited" src="./../assets/star_on.svg">
+        <img v-else class="favorite-button" alt="favorite" @click="FavoriteLevel" src="./../assets/star_off.svg">
 </template>
 
 <style>
@@ -47,7 +47,7 @@ export default {
     max-width: 10%;
     height: 30px;
     cursor: pointer;
-    position:absolute;
+    position: absolute;
     bottom: 5%;
 }
 </style>

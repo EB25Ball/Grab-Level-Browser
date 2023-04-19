@@ -70,7 +70,7 @@ export const useUserStore = defineStore('user', {
     },
     addFavoriteLevel(level_id) {
       this.favoriteLevels.push(level_id);
-    },
+    }
   },
   persist: true,
 })
