@@ -64,13 +64,13 @@ export const useUserStore = defineStore('user', {
     isFavorited(level_id) {
       return this.favoriteLevels.includes(level_id)
     },
-    removeFavoriteLevel(level_id) {
+    detachFavoriteLevel(level_id) {
       const index = this.favoriteLevels.indexOf(level_id);
       if (index !== -1) {
         this.favoriteLevels.splice(index, 1);
       }
     },
-    addFavoriteLevel(level_id) {
+    appendFavoriteLevel(level_id) {
       if (!this.favoriteLevels.includes(level_id)) {
         this.favoriteLevels.push(level_id);
       }
