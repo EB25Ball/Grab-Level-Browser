@@ -26,7 +26,7 @@ export default {
                 if (result === true) {
                     userStore.appendFavoriteLevel(this.level_id)
                 } else {
-                    confirm("something went wrong when trying to add to favorites");
+                    confirm("something went wrong when trying to add to favorites")
                 }
 
             }
@@ -38,7 +38,7 @@ export default {
                 if (result === true) {
                     userStore.detachFavoriteLevel(this.level_id)
                 } else {
-                    confirm("something went wrong when trying to remove this level from favorites");
+                    confirm("something went wrong when trying to remove this level from favorites")
                 }
             }
         }
