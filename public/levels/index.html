@@ -1,441 +1,455 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>GRAB Level Browser</title>
-		<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-		<link rel="preconnect" href="https://fonts.googleapis.com"> 
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
-		<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-		<script type="text/javascript" src="../configuration.js"></script>
-		<script type="text/javascript" src="level_browser.js"></script>
-		<style>
-			body {
-				background-color: #4BA0D6;
-				font-family: 'Roboto', sans-serif;
-			}
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>__PAGE_TITLE__</title>
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+        <meta name="description" content="__PAGE_DESCRIPTION__">
+        <meta property="og:image" content="__PAGE_PREVIEW_IMAGE_URL__">
+        <meta property="og:image:type" content="image/png">
+        <meta property="og:image:width" content="__PAGE_PREVIEW_IMAGE_WIDTH__">
+        <meta property="og:image:height" content="__PAGE_PREVIEW_IMAGE_HEIGHT__">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:image:src" content="__PAGE_PREVIEW_IMAGE_URL__">
+        <style>
+            /* roboto-regular - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Roboto';
+              font-style: normal;
+              font-weight: 400;
+              src: url('../../fonts/roboto-v30-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+            /* roboto-italic - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Roboto';
+              font-style: italic;
+              font-weight: 400;
+              src: url('../../fonts/roboto-v30-latin-italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+            /* roboto-700 - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Roboto';
+              font-style: normal;
+              font-weight: 700;
+              src: url('../../fonts/roboto-v30-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
 
-			.title-image {
-				display: block;
-				margin-left: auto;
-				margin-right: auto;
-				max-width: 50%;
-			}
+            html, body {
+                margin: 0;
+                height: 100%;
+                overflow: hidden;
+                touch-action: pan-x pan-y;
+                user-select: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                font-family: 'Roboto', sans-serif;
+            }
 
-			.login-button {
-				width: 90px;
-				height:  30px;
-				font-weight: bold;
-				border-radius: 2em;
-				box-sizing: border-box;
-				text-decoration: none;
-				background-color: #00BC87;
-				color: #FFFFFF;
-				text-align: center;
-				border: none;
-				position: absolute;
-  				top: 20px;
-  				right: 20px;
-			}
-
-			.logout-button {
-				width: 90px;
-				height:  30px;
-				font-weight: bold;
-				border-radius: 2em;
-				box-sizing: border-box;
-				text-decoration: none;
-				background-color: #FF0000;
-				color: #FFFFFF;
-				text-align: center;
-				border: none;
-				position: absolute;
-  				top: 20px;
-  				right: 20px;
-			}
-
-			.copy-token-button {
-				width: 90px;
-				height: 30px;
-				display: none;
-				font-weight: bold;
-				border-radius: 2em;
-				box-sizing: border-box;
-				text-decoration: none;
-				background-color: #00BC87;
-				color: #FFFFFF;
-				text-align: center;
-				border: none;
-				position: absolute;
-  				top: 60px;
-  				right: 20px;
-			}
-
-			@media (orientation: portrait)
-			{
-				.tab {
-					width: 80%;
-					margin-left: auto;
-					margin-right: auto;
-					overflow: hidden;
-					background-color: #ffffff;
-					border-radius: 10px;
-				}
-
-				.list-container-wrapper {
-					width: 80%;
-					background: none;
-					margin-left: auto;
-	  				margin-right: auto;
-				}
-			}
-
-			@media (orientation: landscape)
-			{
-				.tab {
-					width: 50%;
-					margin-left: auto;
-					margin-right: auto;
-					overflow: hidden;
-					background-color: #ffffff;
-					border-radius: 10px;
-				}
-
-				.list-container-wrapper {
-					width: 50%;
-					background: none;
-					margin-left: auto;
-	  				margin-right: auto;
-				}
-			}
-
-			/* Style the buttons that are used to open the tab content */
-			.tab button {
-				background-color: inherit;
-				float: left;
-				border: none;
-				outline: none;
-				cursor: pointer;
-				padding: 14px 16px;
-				transition: 0.3s;
-				font-weight: medium;
-				height: 100%;
-    				font-size: 14px;
-			}
-
-			/* Change background color of buttons on hover */
-			.tab button:hover {
-				background-color: #ddd;
-			}
-
-			/* Create an active/current tablink class */
-			.tab button.active {
-				background-color: #ccc;
-			}
-
-			.tab input[type=text] {
-				float: right;
-				width: 15%;
-				padding: 6px;
-				border: none;
-				margin-top: 8px;
-			        margin-bottom: 8px;
-			        border-radius: 5px;
-				margin-right: 8px;
-				font-size: 14px;
-			}
-
-			.title-text {
-				display: block;
-				margin-left: auto;
-				margin-right: auto;
-				color: #FFFFFF;
-				max-width: 50%;
-				text-align: center;
-			}
-
-			.list-container {
-				width: 100%;
-				background: none;
-				margin-left: auto;
-  				margin-right: auto;
-
-  				display: grid;
-				grid-template-columns: repeat(2, 1fr);
-				grid-gap: 5px;
-				grid-auto-rows: minmax(100px, auto);
-			}
-
-			.level-counter {
-				width: 100%;
-				margin-left: auto;
-  				margin-right: auto;
-				margin-bottom: 2em;
-				font-size: 20px;
-				font-weight: lighter;
-				font-style: italic;
-				text-align: center;
-			}
-
-			.verified-user-stamp {
-				width: 20px;
-				height: 20px;
-                margin-left: 3px;
+            .info {
+                background-color: #ffffff40;
+                border-radius: 20px;
+                padding: 0px 15px 0px 15px;
+                width: 100%;
+                text-align: left;
+                overflow-y: scroll;
+                display: block;
+                max-height: 87.5%;
+            }
+             #time-slider {
+                -webkit-appearance: none;
+                width: 100%;
+                height:2.1%;
+                border-radius: 5px;
+                background: #d3d3d3;
+                outline: none;
+                opacity: 0.7;
                 position: relative;
-                top: 3px;
-			}
+                bottom: 0px;
+                -webkit-transition: .2s;
+                transition: opacity .2s;
+                display: none;
+            }
 
-			.list-cell {
-				height: 270px;
-				background-color:#FFFFFF;
-				color:#000000;
-				border: none;
-				padding: 3%;
-				box-sizing: border-box;
-				position: relative;
-				border-radius: 10px;
-				overflow: hidden; 
-				text-overflow: ellipsis;
-			}
+            #info-container {
+                position: absolute;
+                top: 50px;
+                left: 10px;
+                height: 100%;
+                max-width: 30%;
+            }
 
-			.list-cell-admin {
-				height: 600px;
-				background-color:#FFFFFF;
-				color:#000000;
-				border: none;
-				padding: 3%;
-				box-sizing: border-box;
-				position: relative;
-				border-radius: 10px;
+            #time-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #04AA6D;
+                cursor: pointer;
+            }
 
-				overflow: hidden; 
-				text-overflow: ellipsis;
-			}
+            #time-slider::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #04AA6D;
+                cursor: pointer;
 
-			.list-cell-admin[bad="bad"]
-			{
-				background-color:red;
-			}
+            }
 
-			.list-cell-admin-reports {
-				height: 650px;
-				background-color:#FFFFFF;
-				color:#000000;
-				border: none;
-				padding: 3%;
-				box-sizing: border-box;
-				position: relative;
-				border-radius: 10px;
+            .moderationinfo {
+                position: relative;
+                text-align: left;
+                z-index: 100;
+                display:block;
+            }
 
-				overflow: hidden; 
-				text-overflow: ellipsis;
-			}
+            .buttons {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                text-align: left;
+                z-index: 100;
+                display:block;
+            }
 
-			.list-cell-admin-reports[handled="handled"]
-			{
-				background-color:green;
-			}
+            #buttons form input {
+                cursor: pointer;
+            }
 
-			.cell-difficulty {
-				width: 30%;
-				font-size: 15px;
-				white-space: nowrap;
-				text-align: left;
-				float: left;
-			}
+            .back-button {
+                width: 90px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #FFAE00;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+            }
 
-			.cell-plays {
-				width: 45%;
-				padding-right: 3%;
-				font-size: 15px;
-				white-space: nowrap;
-				text-align: right;
-				float: right;
-			}
+            .fog-button {
+                width: 120px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #FFAE00;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                float: right;
+            }
 
-			.cell-title {
-				width: 50%;
-				font-size: 20px;
-				white-space: nowrap;
-			}
+            .copy-button {
+                width: 120px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #FFAE00;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                float: right;
+            }
+            
+            .download-button {
+                width: 120px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #FFAE00;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                float: right;
+                display: none;
+            }
 
-			.cell-button {
-				position: absolute;
-				left: 30%;
-				bottom: 5%;
-				width: 40%;
-				line-height: 30px;
-				border: none;
-				border-radius: 10px;
-				background-color:#00BC87;
-				color: #FFFFFF;
-				font-weight: bold;
-				font-size: 15px;
-				text-align:center;
-				text-decoration: none;
-			}
+            .fullscreen-button {
+                width: 120px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #00BC87;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                float: right;
+            }
 
-			.cell-button-more-levels {
-				position: absolute;
-				right: 5%;
-				top: 35px;
-				padding-left: 10px;
-				padding-right: 10px;
-				line-height: 30px;
-				border: none;
-				border-radius: 10px;
-				background-color:#4642BE;
-				color: #FFFFFF;
-				font-weight: bold;
-				font-size: 15px;
-				text-align:center;
-				text-decoration: none;
-			}
-			.cell-bar{
-				position: absolute;
-				max-height: 30px;
-				left: 5%;
-				bottom: 5%;
-				display: flex;
-				background-color: transparent;
-			}
+            .info-stamp-ok {
+                position: absolute;
+                top: 20%;
+                right: 5%;
+                width: 30%;
+                transform: rotate(-20deg);
+                display:block;
+            }
 
-			.cell-button-report {
-				margin-right: 10px;
-				width: 30px;
-				height: 30px;
-				border: none;
-				background-color: transparent;
-				background-image: url(../images/report.png);
-				background-repeat: no-repeat;
-  				background-size: cover;
-			}
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 200;
+                display: none;
+            }
 
-			.cell-button-report-user {
-				margin-right: 10px;
-				width: 30px;
-				height: 30px;
-				border: none;
-				background-color: transparent;
-				background-image: url(../images/report_user.png);
-				background-repeat: no-repeat;
-  				background-size: cover;
-			}
+            .leaderboard {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 80%;
+                max-height: 70%;
+                max-width: 600px;
+                background-color: white;
+                border-radius: 20px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                z-index: 300;
+                display: none;
+            }
 
-			.cell-stamp-ok {
-				position: absolute;
-				right: 1%;
-				bottom: 5%;
-				width: 20%;
-				transform: rotate(-20deg);
-			}
+            .leaderboard-header {
+              font-size: 24px;
+              font-weight: bold;
+              margin-bottom: 10px;
+              text-transform: uppercase;
+              letter-spacing: 2px;
+            }
 
-			.cell-description {
-				display: -webkit-box;   
-				-webkit-line-clamp: 3;
-				-webkit-box-orient: vertical;     
-				overflow: hidden;
-			}
+            .leaderboard-placeholder {
+              font-size: 16px;
+              font-style: italic;
+              margin-top: 10px;
+              color: #999999;
+            }
 
-			.popup
-			{
-				position: fixed;
-				display: none;
-				left: 40%;
-				width: 20%;
-				top: 30%;
-				height: 20%;
-				z-index:1002;
-				color: #000000;
-			}
+            .leaderboard-content {
+                max-height: 50vh;
+                overflow-y: scroll;
+                margin-bottom: 15px;
+            }
 
-			.popup-inner
-			{
-				background-color: white;
-				border-radius: 10px;
-				border: 3px solid grey;
-				padding: 10px;
-			}
+            .leaderboard-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 5px 0;
+            }
 
-			.popup[open="open"]
-			{
-				display: block;
-			}
+            .leaderboard-row:nth-of-type(even) {
+              background-color: #f5f5f5; /* light gray */
+            }
 
-			img.rick {
-				width: 100%;
-				height: 100%;
-				position: fixed;
-				top: 0;
-				left: 0;
-				z-index: -1;
-			}.fa-star-o{color:black;
-				padding-right: 1.075px;
-				padding-left: 3.065px;
-				font-size: 30px;}
-			.fa.fa-star{
-				padding-right: 1.075px;
-				padding-left: 3.065px;
-				font-size: 30px;
-			} 
-			.star_active{
-  animation: shake 0.825s cubic-bezier(.36,.07,.19,.97) both;
-  transform: translate3d(0, 0, 0);
-  color: orange;
-			}
-			
-@keyframes shake {
-	10%, 90% {
-	  transform: translate3d(0,-0.35px, 0);
-	}
-	
-	20%, 80% {
-	  transform: translate3d(0,0.75px, 0);
-	}
-  
-	30%, 50%, 70% {
-	  transform: translate3d(0,-1.5px,0);
-	}
-  
-	40%, 60% {
-	  transform: translate3d(0,1.5px, 0);
-	}
-  }
-		</style>
-	</head>
-	<body>
-		<div class="popup" id="popup">
-			<div class="popup-inner">
-				<div class="cell-title" id="popup-title"></div><br>
-				<div class="cell-description" id="popup-description"></div><br>
-				<form>
-					<select id="popup-reason" style="width: 70%">
-					</select>
-				</form>
-				<br>
-				<button id="popup-button-cancel">Cancel</button>
-				<button id="popup-button-ok">OK</button>
-			</div>
-		</div>
+            .leaderboard-row:nth-of-type(odd) {
+              background-color: #ffffff; /* white */
+            }
 
-		<button class="login-button" id="loginout-button" type="button" onclick="login();">Login</button>
-		<button class="copy-token-button" id="copy-token-button" type="button">Copy Access Token</button>
-		<img src="../images/logo.png" alt="GRAB Logo" class="title-image">
-		<br>
-		<div class="tab" id="tabbar">
-			<button class="tablinks active" onclick="tabChanged('newest')" id="tab_newest">All Levels</button>
-			<button class="tablinks" onclick="tabChanged('verified')" id="tab_verified">Verified Levels</button>
-			<button class="tablinks" onclick="tabChanged('search_users')" id="tab_search_users">Players</button>
-			<input type="text" id="search_field" placeholder="Search.." oninput="search(event)">
-		</div>
-		<br>
+            .leaderboard-position, .leaderboard-name, .leaderboard-time {
+              flex: 1;
+              text-align: center;
+              font-size: 18px;
+            }
 
-		<h1 class="title-text" id="title-text">All Levels</h1>
-		<div class="list-container-wrapper" id=list-container-wrapper>
-			<div class="list-container" id="list-container"></div>
-		</div>
+            .leaderboard-name {
+              font-weight: bold;
+            }
 
-		<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6a50a84f2a35413b953ceffc91acf421"}'></script><!-- End Cloudflare Web Analytics -->
-	</body>
+            .leaderboard-time {
+              font-style: italic;
+              color: #999999;
+            }
+
+            .leaderboard-close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                font-size: 18px;
+                cursor: pointer;
+            }
+            .leaderboard-button {
+                font-weight: bold;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #f15a5a;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                cursor: pointer;
+            }
+            #leaderboard-button {
+                width: 120px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #FFAE00;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                float: right;
+            }
+            #listButtons {
+                display: flex;
+                justify-content: space-between;
+                margin: 0 auto;
+                margin-top: 10px;
+            }
+            #listButtons > button {
+                cursor: pointer;
+                width: 80px;
+                height: 30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #FFAE00;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+            }
+            #hideButton, #unverifyButton, #verifySkipSuccessButton {
+                height: 30px;
+                font-weight: bold;
+                background-color: red;
+                color: white;
+                border: none;
+                border-radius: 15px;
+                cursor: pointer;
+            }
+            #hideReason {
+                height: 30px;
+                font-weight: bold;
+                border: none;
+                border-radius: 15px;
+                cursor: pointer;
+            }
+            .creatorButton, #verifyButton, #verifySkipButton {
+                height: 30px;
+                width: fit-content;
+                padding-right: 20px;
+                padding-left: 20px;
+                font-weight: bold;
+                background-color: green;
+                color: white;
+                margin-bottom: 1em;
+                border: none;
+                border-radius: 15px;
+                cursor: pointer;
+            }
+
+            .previewImage {
+                border-radius: 15px;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <script type="module" src="scripts/shaders.js"></script>
+        <script type="module" src="scripts/level_viewer.js"></script>
+
+        <div id="buttons" class="buttons">
+        <form>
+            <input type="button" id="back-button" class="back-button" value="User Levels">
+            <input type="button" value="FULLSCREEN" id="fullscreen" class="fullscreen-button">
+            <input type="button" id="fog-button" class="fog-button" value="Toggle Fog">
+            <input type="button" id="copy-button" class="copy-button" value="Copy Level URL">
+            <input type="button" id="leaderboard-button" value="Leaderboard">
+            <input type="button" id="download-button" class="download-button" value="Download as GLTF">
+        </form>
+        </div>
+        
+        <div id='info-container'>
+        <div id="info" class="info">
+        <br>
+        <div id="title"></div>
+        <div id="creators"></div>
+        <div id="description"></div>
+        <div id="complexity"></div>
+        <div id="checkpoints"></div>
+        <br>
+        <div id="date"></div>
+        <br>
+        <div id="total played count">total played count</div>
+        <div id="total finished count">total finished count</div>
+        <div id="players played count">players played count</div>
+        <div id="players finished count">players finished count</div>
+        <div id="players rated count">players rated count</div>
+        <div id="players liked count">players liked count</div>
+        <div id="average time">average time</div>
+        <br>
+        <div id="go to start"></div>
+        <br style="display: block;content: '';margin-top: 0.5em; ">
+        <div id="go to finish"></div>
+        <br>
+        <div id="listButtons" style="display: none;">
+            <button id="prevListItem">BACK</button>
+            <button id="nextListItem">NEXT</button>
+            <p><span id="currentListItem"></span> / <span id="totalListItems"></span></p>
+        </div>
+        <br>
+        <div id="moderationcontainer" class="moderationinfo">
+            <button id="verifyButton" style="display: none;">Verify</button>
+            <button id="unverifyButton" style="display: none;">Unverify</button>
+            <button id="verifySkipButton" style="display: none;">Skip</button>
+            <button id="verifySkipSuccessButton" style="display: none;">Skipped</button>
+            <div id="hidecontainer" style="display: none;">
+                <div id="reports" style="display: none;">
+                    <b><p id="reportsTitle">Reports:</p></b>
+                    <div id="reportlist"></div>
+                </div>
+                <br>
+                <b>Hide Level</b>
+                <form>
+                    <select id="hideReason" style="width: 70%;">
+                        <option value="">- Reason -</option>
+                        <option id="level_sexual" value="level_sexual">Sexual Content / Genitals</option>
+                        <option id="level_violence" value="level_violence">Detailed Violence</option>
+                        <option id="level_hatespeech" value="level_hatespeech">Inappropriate Language</option>
+                        <option id="level_loweffort" value="level_loweffort">Very low effort level</option>
+                        <option id="level_glitch" value="level_glitch">Requires to use a Glitch to finish</option>
+                        <option id="level_other" value="level_other">Other</option>
+                        <option id="no_punish" value="no_punish">Don't punish</option>
+                        <option id="approve" value="approve">Approve</option>
+                    </select>
+                </form>
+                <br>
+                <button id="hideButton">Apply</button>
+                <br><br>
+            </div>
+        </div>
+        <br>
+        <br>
+    </div>    
+    <br>
+    <input type="range" id="time-slider" min="0" max="0" step="0.01" value="0">
+</div>
+
+        <div id="overlay" class="overlay"></div>
+        <div id="leaderboard" class="leaderboard">
+            <div class="leaderboard-header">Leaderboard</div>
+            <div id="leaderboard-content" class="leaderboard-content"></div>
+            <div class="leaderboard-close" id="leaderboard-close">&times;</div>
+        </div>
+    </body>
 </html>
